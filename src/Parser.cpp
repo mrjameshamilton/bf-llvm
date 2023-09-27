@@ -35,13 +35,17 @@ private:
   unsigned int current = 0;
   std::vector<Token> tokens;
 
-  static ParseError error(const Token token, const std::string &message) { return ParseError(message, token.getLine()); }
+  static ParseError error(const Token token, const std::string &message) {
+    return ParseError(message, token.getLine());
+  }
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "misc-no-recursion"
   void instruction(NodeList &body) {
-    if (isAtStart())
+    if (isAtStart()) {
       body.push_back(std::move(_instruction()));
+      return;
+    }
 
     // Consecutive Add or Move are combined.
     auto PreviousType = previous().getType();

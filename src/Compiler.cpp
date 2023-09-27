@@ -96,7 +96,6 @@ public:
 
     Builder->CreateCondBr(Builder->CreateIsNotNull(LoadByte(), "ExitNotNull"), Body, Exit);
 
-    // Exit->moveAfter(Builder->GetInsertBlock());
     DP = std::make_unique<Value *>(DPExitPhi);
     Builder->SetInsertPoint(Exit);
   }
