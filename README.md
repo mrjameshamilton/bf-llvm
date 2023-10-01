@@ -42,7 +42,8 @@ entry:
 ```shell
 $ cmake -G Ninja -B build
 $ ninja -C build
-$ build/bf examples/helloworld.bf
+$ build/bf examples/helloworld.bf -o build/helloworld.ll
+$ lli build/helloworld.ll
 ```
 
 ## Other targets
