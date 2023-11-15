@@ -4,13 +4,11 @@
 #include <iostream>
 #include <memory>
 #include <numeric>
-#include <ranges>
 #include <vector>
 
 namespace bf {
 
-class ParseError : public std::runtime_error {
-private:
+class ParseError final : public std::runtime_error {
   unsigned int line = 0;
 
 public:
@@ -48,8 +46,8 @@ private:
     }
 
     // Consecutive Add or Move are combined.
-    auto PreviousType = previous().getType();
-    auto CurrentType = peek().getType();
+    const auto PreviousType = previous().getType();
+    const auto CurrentType = peek().getType();
 
     if (PreviousType == TokenType::PLUS && CurrentType == TokenType::PLUS ||
         PreviousType == TokenType::MINUS && CurrentType == TokenType::MINUS) {
@@ -112,9 +110,9 @@ private:
     return false;
   }
 
-  bool match(TokenType type) { return match({type}); }
+  bool match(const TokenType type) { return match({type}); }
 
-  bool check(TokenType type) { return !isAtEnd() && (peek().getType() == type); }
+  [[nodiscard]] bool check(const TokenType type) const { return !isAtEnd() && peek().getType() == type; }
 
   Token advance() {
     if (!isAtEnd())
@@ -122,12 +120,12 @@ private:
     return previous();
   }
 
-  bool isAtStart() const { return current == 0; }
+  [[nodiscard]] bool isAtStart() const { return current == 0; }
 
-  bool isAtEnd() { return peek().getType() == TokenType::END; }
+  [[nodiscard]] bool isAtEnd() const { return peek().getType() == TokenType::END; }
 
-  Token peek() { return tokens.at(current); }
+  [[nodiscard]] Token peek() const { return tokens.at(current); }
 
-  Token previous() { return tokens.at(current - 1); }
+  [[nodiscard]] Token previous() const { return tokens.at(current - 1); }
 };
 } // namespace bf

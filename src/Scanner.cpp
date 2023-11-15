@@ -28,7 +28,7 @@ private:
 
   char advance() { return Source.at(current++); }
 
-  bool isAtEnd() { return current >= Source.length(); }
+  [[nodiscard]] bool isAtEnd() const { return current >= Source.length(); }
 
   void scanToken() {
     switch (advance()) {

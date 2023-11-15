@@ -1,9 +1,7 @@
 #ifndef BF_AST_H
 #define BF_AST_H
 
-#include <iostream>
 #include <memory>
-#include <string>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -25,6 +23,7 @@ class Program;
 
 class Visitor {
 public:
+  virtual ~Visitor() = default;
   virtual void visitMove(const Move &Move) = 0;
 
   virtual void visitAdd(const Add &Add) = 0;
@@ -48,8 +47,7 @@ public:
 
 using NodeList = std::vector<std::unique_ptr<Node>>;
 
-class Program : public Node {
-private:
+class Program final : public Node {
   NodeList body;
 
 public:
@@ -66,45 +64,42 @@ public:
 
 class Parser;
 
-class Move : public Node {
+class Move final : public Node {
   // Parser is a friend so the amount can be modified.
   friend Parser;
 
-private:
   int amount = 0;
 
 public:
-  explicit Move(int move) : amount{move} {}
+  explicit Move(const int move) : amount{move} {}
 
   [[nodiscard]] int getAmount() const { return amount; }
 
   void accept(Visitor &visitor) const override { visitor.visitMove(*this); }
 };
 
-class Add : public Node {
+class Add final : public Node {
   // Parser is a friend so the amount can be modified.
   friend Parser;
 
-private:
   int amount = 0;
 
 public:
-  explicit Add(int amount) : amount{amount} {}
+  explicit Add(const int amount) : amount{amount} {}
 
   [[nodiscard]] int getAmount() const { return amount; }
 
   void accept(Visitor &visitor) const override { visitor.visitAdd(*this); }
 };
 
-class Zero : public Node {
+class Zero final : public Node {
 public:
   explicit Zero() = default;
 
   void accept(Visitor &visitor) const override { visitor.visitZero(*this); }
 };
 
-class Loop : public Node {
-private:
+class Loop final : public Node {
   NodeList body;
 
 public:
@@ -119,14 +114,14 @@ public:
   }
 };
 
-class Print : public Node {
+class Print final : public Node {
 public:
   explicit Print() = default;
 
   void accept(Visitor &visitor) const override { visitor.visitPrint(*this); }
 };
 
-class Read : public Node {
+class Read final : public Node {
 public:
   explicit Read() = default;
 

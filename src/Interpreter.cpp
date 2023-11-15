@@ -1,8 +1,7 @@
 #include "AST.h"
 
 namespace bf {
-class Interpreter : public Visitor {
-private:
+class Interpreter final : public Visitor {
   unsigned char Memory[30000] = {0};
   unsigned char *Ptr = Memory;
 

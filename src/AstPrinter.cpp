@@ -1,7 +1,9 @@
 #include "AST.h"
 
+#include <iostream>
+
 namespace bf {
-class AstPrinter : public Visitor {
+class AstPrinter final : public Visitor {
 public:
   void visitZero(const Zero &Zero) override { std::cout << "[+]"; }
 
