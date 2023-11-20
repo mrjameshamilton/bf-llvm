@@ -51,10 +51,10 @@ private:
 
     if (PreviousType == TokenType::PLUS && CurrentType == TokenType::PLUS ||
         PreviousType == TokenType::MINUS && CurrentType == TokenType::MINUS) {
-      dynamic_cast<Add *>(body.back().get())->amount += dynamic_cast<Add *>(_instruction().get())->amount;
+      dynamic_cast<Add &>(*body.back()).amount += dynamic_cast<Add &>(*_instruction()).amount;
     } else if (PreviousType == TokenType::GREATER && CurrentType == TokenType::GREATER ||
                PreviousType == TokenType::LESS && CurrentType == TokenType::LESS) {
-      dynamic_cast<Move *>(body.back().get())->amount += dynamic_cast<Move *>(_instruction().get())->amount;
+      dynamic_cast<Move &>(*body.back()).amount += dynamic_cast<Move &>(*_instruction()).amount;
     } else {
       body.push_back(std::move(_instruction()));
     }
