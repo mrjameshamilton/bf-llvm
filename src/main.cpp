@@ -28,40 +28,44 @@ std::string read_string_from_file(const std::string &file_path) {
   return buffer.str();
 }
 
-int main(int argc, char **argv) {
+int main(const int argc, char **argv) {
   cl::ParseCommandLineOptions(argc, argv);
 
   if (InputFilename.empty()) {
-    std::cout << "Source must not be empty";
+    std::cerr << "Source must not be empty" << std::endl;
     return -1;
   }
 
   bf::Scanner Scanner(read_string_from_file(InputFilename));
-  std::vector<bf::Token> tokens = Scanner.scanTokens();
+  const std::vector<bf::Token> tokens = Scanner.scanTokens();
   bf::Parser Parser(tokens);
   try {
-    auto AST = Parser.parse();
+    const auto AST = Parser.parse();
 
     if (Print.getValue()) {
       bf::AstPrinter AstPrinter;
-      AST->accept(AstPrinter);
+      AstPrinter.print(*AST);
+      std::cout << "" << std::endl;
     }
 
     if (OutputFilename.empty() || Execute.getValue()) {
       bf::Interpreter Interpreter;
-      AST->accept(Interpreter);
+      Interpreter.interpret(*AST);
     }
 
     if (!OutputFilename.empty()) {
       bf::Compiler Compiler;
-      AST->accept(Compiler);
+      Compiler.compile(*AST);
       if (!DontOptimize.getValue()) {
         Compiler.optimize();
       }
-      Compiler.writeIR(OutputFilename.getValue());
+      if (!Compiler.writeIR(OutputFilename.getValue())) {
+        std::cerr << "Error writing LLVM IR" << std::endl;
+        return -1;
+      }
     }
   } catch (bf::ParseError &E) {
-    std::cerr << "Line " << E.getLine() << ": " << E.what() << "\n";
+    std::cerr << "Line " << E.getLine() << ": " << E.what() << std::endl;
     return -1;
   }
   return 0;

@@ -1,28 +1,34 @@
 #include "AST.h"
 
 namespace bf {
-class Interpreter final : public Visitor {
+
+class Interpreter final {
   unsigned char Memory[30000] = {0};
   unsigned char *Ptr = Memory;
 
 public:
-  Interpreter() = default;
-
-  void visitMove(const Move &Move) override { Ptr += Move.getAmount(); }
-
-  void visitAdd(const Add &Add) override { *Ptr += Add.getAmount(); }
-
-  void visitZero(const Zero &Zero) override { *Ptr = 0; }
-
-  void visitLoop(const Loop &Loop) override {
-    while (*Ptr)
-      Loop.bodyAccept(*this);
+  void interpret(const Program &Program) {
+    for (const auto &stmt : Program.body) {
+      std::visit(*this, stmt);
+    }
   }
 
-  void visitPrint(const Print &Print) override { putchar(*Ptr); }
+  void operator()(const MovePtr &Move) { Ptr += Move->amount; }
 
-  void visitRead(const Read &Read) override { *Ptr = getchar(); }
+  void operator()(const AddPtr &Add) const { *Ptr += Add->amount; }
 
-  void visitProgram(const Program &Program) override { Program.bodyAccept(*this); }
+  void operator()(const ZeroPtr &) const { *Ptr = 0; }
+
+  void operator()(const LoopPtr &Loop) {
+    while (*Ptr) {
+      for (const auto &stmt : Loop->body) {
+        std::visit(*this, stmt);
+      }
+    }
+  }
+
+  void operator()(const PrintPtr &) const { putchar(*Ptr); }
+
+  void operator()(const ReadPtr &) const { *Ptr = getchar(); }
 };
 } // namespace bf

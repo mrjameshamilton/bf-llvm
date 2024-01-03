@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <numeric>
+#include <variant>
 #include <vector>
 
 namespace bf {
@@ -37,8 +38,6 @@ private:
     return ParseError(message, token.getLine());
   }
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "misc-no-recursion"
   void instruction(NodeList &body) {
     if (isAtStart()) {
       body.push_back(std::move(_instruction()));
@@ -51,47 +50,47 @@ private:
 
     if (PreviousType == TokenType::PLUS && CurrentType == TokenType::PLUS ||
         PreviousType == TokenType::MINUS && CurrentType == TokenType::MINUS) {
-      dynamic_cast<Add &>(*body.back()).amount += dynamic_cast<Add &>(*_instruction()).amount;
+      std::get<AddPtr>(body.back())->amount += std::get<AddPtr>(_instruction())->amount;
     } else if (PreviousType == TokenType::GREATER && CurrentType == TokenType::GREATER ||
                PreviousType == TokenType::LESS && CurrentType == TokenType::LESS) {
-      dynamic_cast<Move &>(*body.back()).amount += dynamic_cast<Move &>(*_instruction()).amount;
+      std::get<MovePtr>(body.back())->amount += std::get<MovePtr>(_instruction())->amount;
     } else {
       body.push_back(std::move(_instruction()));
     }
   }
 
-  std::unique_ptr<Node> _instruction() {
+  Node _instruction() {
     if (match(TokenType::LEFT_BRACKET)) {
-      auto body = NodeList();
+      NodeList body;
       while (!check(TokenType::RIGHT_BRACKET) && !isAtEnd()) {
         instruction(body);
       }
       consume(TokenType::RIGHT_BRACKET, std::string("Expected matching ']'."));
       // [+] or [-] zero out the current Memory cell, so can be
       // replaced by a specific zero-ing _instruction.
-      if (body.size() == 1 && dynamic_cast<const Add *>(body.at(0).get())) {
+      if (body.size() == 1 && std::holds_alternative<AddPtr>(body.at(0))) {
         return std::make_unique<Zero>();
-      } else {
-        return std::make_unique<Loop>(body);
       }
-    } else if (match(TokenType::RIGHT_BRACKET))
+
+      return std::make_unique<Loop>(body);
+    }
+    if (match(TokenType::RIGHT_BRACKET))
       throw error(previous(), std::string("Unexpected ']'."));
-    else if (match(TokenType::GREATER))
+    if (match(TokenType::GREATER))
       return std::make_unique<Move>(1);
-    else if (match(TokenType::LESS))
+    if (match(TokenType::LESS))
       return std::make_unique<Move>(-1);
-    else if (match(TokenType::PLUS))
+    if (match(TokenType::PLUS))
       return std::make_unique<Add>(1);
-    else if (match(TokenType::MINUS))
+    if (match(TokenType::MINUS))
       return std::make_unique<Add>(-1);
-    else if (match(TokenType::DOT))
+    if (match(TokenType::DOT))
       return std::make_unique<Print>();
-    else if (match(TokenType::COMMA))
+    if (match(TokenType::COMMA))
       return std::make_unique<Read>();
 
     throw error(peek(), std::string("Expected bf command."));
   }
-#pragma clang diagnostic pop
 
   Token consume(const TokenType type, const std::string &message) {
     if (check(type))

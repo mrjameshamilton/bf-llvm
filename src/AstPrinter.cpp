@@ -1,33 +1,40 @@
 #include "AST.h"
 
 #include <iostream>
+#include <variant>
 
 namespace bf {
-class AstPrinter final : public Visitor {
+class AstPrinter final {
 public:
-  void visitZero(const Zero &Zero) override { std::cout << "[+]"; }
+  void print(const Program &Program) { print(Program.body); }
 
-  void visitRead(const Read &Read) override { std::cout << ","; }
-
-  void visitPrint(const Print &Print) override { std::cout << "."; }
-
-  void visitProgram(const Program &Program) override { Program.bodyAccept(*this); }
-
-  void visitLoop(const Loop &Loop) override {
-    std::cout << "[";
-    Loop.bodyAccept(*this);
-    std::cout << "]";
-  }
-
-  void visitMove(const Move &move) override {
-    if (move.getAmount() != 0) {
-      std::cout << std::string(std::abs(move.getAmount()), move.getAmount() < 0 ? '<' : '>');
+  void print(const NodeList &statements) {
+    for (auto &stmt : statements) {
+      std::visit(*this, stmt);
     }
   }
 
-  void visitAdd(const Add &add) override {
-    if (add.getAmount()) {
-      std::cout << std::string(std::abs(add.getAmount()), add.getAmount() < 0 ? '-' : '+');
+  void operator()(const ZeroPtr &) const { std::cout << "[+]"; }
+
+  void operator()(const ReadPtr &) const { std::cout << ","; }
+
+  void operator()(const PrintPtr &) const { std::cout << "."; }
+
+  void operator()(const LoopPtr &Loop) {
+    std::cout << "[";
+    print(Loop->body);
+    std::cout << "]";
+  }
+
+  void operator()(const MovePtr &move) const {
+    if (move->amount != 0) {
+      std::cout << std::string(std::abs(move->amount), move->amount < 0 ? '<' : '>');
+    }
+  }
+
+  void operator()(const AddPtr &add) const {
+    if (add->amount) {
+      std::cout << std::string(std::abs(add->amount), add->amount < 0 ? '-' : '+');
     }
   }
 };
