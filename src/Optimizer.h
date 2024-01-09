@@ -1,13 +1,7 @@
 #ifndef OPTIMIZER_H
 #define OPTIMIZER_H
 #include "AST.h"
-
-template<class... Ts>
-struct overloaded : Ts... {
-    using Ts::operator()...;
-};
-template<class... Ts>
-overloaded(Ts...) -> overloaded<Ts...>;
+#include "Util.h"
 
 namespace bf {
 

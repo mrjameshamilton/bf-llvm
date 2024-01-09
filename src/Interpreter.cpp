@@ -1,4 +1,5 @@
 #include "AST.h"
+#include "Util.h"
 
 namespace bf {
 
@@ -8,27 +9,30 @@ namespace bf {
 
     public:
         void interpret(const Program &Program) {
-            for (const auto &stmt: Program.body) {
-                std::visit(*this, stmt);
+            for (auto &stmt: Program.body) {
+                interpret(stmt);
             }
         }
 
-        void operator()(const MovePtr &Move) { Ptr += Move->amount; }
-
-        void operator()(const AddPtr &Add) const { *Ptr += Add->amount; }
-
-        void operator()(const ZeroPtr &) const { *Ptr = 0; }
-
-        void operator()(const LoopPtr &Loop) {
-            while (*Ptr) {
-                for (const auto &stmt: Loop->body) {
-                    std::visit(*this, stmt);
-                }
-            }
+    private:
+        void interpret(Node Node) {
+            std::visit(
+                overloaded{
+                    [this](const MovePtr &Move) { Ptr += Move->amount; },
+                    [this](const AddPtr &Add) { *Ptr += Add->amount; },
+                    [this](ZeroPtr &) { *Ptr = 0; },
+                    [this](const LoopPtr &Loop) {
+                        while (*Ptr) {
+                            for (const auto &body: Loop->body) {
+                                interpret(body);
+                            }
+                        }
+                    },
+                    [this](PrintPtr &) { putchar(*Ptr); },
+                    [this](ReadPtr &) { *Ptr = getchar(); },
+                },
+                Node
+            );
         }
-
-        void operator()(const PrintPtr &) const { putchar(*Ptr); }
-
-        void operator()(const ReadPtr &) const { *Ptr = getchar(); }
     };
 }// namespace bf

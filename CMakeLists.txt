@@ -13,6 +13,7 @@ add_definitions(${LLVM_DEFINITIONS})
 add_executable(bf src/main.cpp src/Scanner.cpp src/Token.h src/AST.h src/Parser.cpp src/Interpreter.cpp src/Compiler.cpp
         src/Optimizer.h
         src/Compiler.h
+        src/Util.h
 )
 
 llvm_map_components_to_libnames(llvm_libs support core irreader passes)
