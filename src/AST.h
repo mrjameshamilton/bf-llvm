@@ -16,12 +16,12 @@ namespace bf {
     struct Print final {};
     struct Read final {};
 
-    using AddPtr = std::unique_ptr<Add>;
-    using MovePtr = std::unique_ptr<Move>;
-    using ZeroPtr = std::unique_ptr<Zero>;
-    using LoopPtr = std::unique_ptr<Loop>;
-    using PrintPtr = std::unique_ptr<Print>;
-    using ReadPtr = std::unique_ptr<Read>;
+    using AddPtr = std::shared_ptr<Add>;
+    using MovePtr = std::shared_ptr<Move>;
+    using ZeroPtr = std::shared_ptr<Zero>;
+    using LoopPtr = std::shared_ptr<Loop>;
+    using PrintPtr = std::shared_ptr<Print>;
+    using ReadPtr = std::shared_ptr<Read>;
 
     using Node = std::variant<AddPtr, MovePtr, ZeroPtr, LoopPtr, PrintPtr, ReadPtr>;
 

@@ -1,6 +1,7 @@
 #include "AstPrinter.cpp"
-#include "Compiler.cpp"
+#include "Compiler.h"
 #include "Interpreter.cpp"
+#include "Optimizer.h"
 #include "Parser.cpp"
 #include "Scanner.cpp"
 #include "llvm/Support/CommandLine.h"
@@ -41,6 +42,9 @@ int main(const int argc, char **argv) {
     bf::Parser Parser(tokens);
     try {
         const auto AST = Parser.parse();
+
+        bf::Optimizer optimizer;
+        optimizer.optimize(*AST);
 
         if (Print.getValue()) {
             bf::AstPrinter AstPrinter;

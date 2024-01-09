@@ -25,9 +25,9 @@ namespace bf {
         auto parse() {
             NodeList statements;
             while (!isAtEnd()) {
-                instruction(statements);
+                statements.push_back(instruction());
             }
-            return std::make_unique<Program>(statements);
+            return std::make_shared<Program>(statements);
         }
 
     private:
@@ -38,53 +38,33 @@ namespace bf {
             return ParseError(message, token.getLine());
         }
 
-        void instruction(NodeList &body) {
-            if (isAtStart()) {
-                body.push_back(std::move(_instruction()));
-                return;
-            }
-
-            // Consecutive Add or Move are combined.
-            const auto PreviousType = previous().getType();
-            const auto CurrentType = peek().getType();
-
-            if (PreviousType == TokenType::PLUS && CurrentType == TokenType::PLUS ||
-                PreviousType == TokenType::MINUS && CurrentType == TokenType::MINUS) {
-                std::get<AddPtr>(body.back())->amount += std::get<AddPtr>(_instruction())->amount;
-            } else if (PreviousType == TokenType::GREATER && CurrentType == TokenType::GREATER || PreviousType == TokenType::LESS && CurrentType == TokenType::LESS) {
-                std::get<MovePtr>(body.back())->amount += std::get<MovePtr>(_instruction())->amount;
-            } else {
-                body.push_back(std::move(_instruction()));
-            }
-        }
-
-        Node _instruction() {
+        Node instruction() {
             if (match(TokenType::LEFT_BRACKET)) {
                 NodeList body;
                 while (!check(TokenType::RIGHT_BRACKET) && !isAtEnd()) {
-                    instruction(body);
+                    body.push_back(instruction());
                 }
                 consume(TokenType::RIGHT_BRACKET, std::string("Expected matching ']'."));
                 // [+] or [-] zero out the current Memory cell, so can be
                 // replaced by a specific zero-ing _instruction.
                 if (body.size() == 1 && std::holds_alternative<AddPtr>(body.at(0))) {
-                    return std::make_unique<Zero>();
+                    return std::make_shared<Zero>();
                 }
 
-                return std::make_unique<Loop>(body);
+                return std::make_shared<Loop>(body);
             }
             if (match(TokenType::RIGHT_BRACKET))
                 throw error(previous(), std::string("Unexpected ']'."));
             if (match(TokenType::GREATER))
-                return std::make_unique<Move>(1);
+                return std::make_shared<Move>(1);
             if (match(TokenType::LESS))
-                return std::make_unique<Move>(-1);
+                return std::make_shared<Move>(-1);
             if (match(TokenType::PLUS))
-                return std::make_unique<Add>(1);
+                return std::make_shared<Add>(1);
             if (match(TokenType::MINUS))
-                return std::make_unique<Add>(-1);
+                return std::make_shared<Add>(-1);
             if (match(TokenType::DOT))
-                return std::make_unique<Print>();
+                return std::make_shared<Print>();
             if (match(TokenType::COMMA))
                 return std::make_unique<Read>();
 
