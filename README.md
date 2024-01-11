@@ -48,7 +48,7 @@ $ lli build/helloworld.ll
 
 ## Other targets
 
-This project is a port of [bf](https://github.com/mrjameshamilton) which is a brainf*ck compiler with backends for:
+This project is a port of [bf](https://github.com/mrjameshamilton/bf) which is a brainf*ck compiler with backends for:
 
 * JVM
 * Smali
