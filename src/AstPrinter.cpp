@@ -1,4 +1,5 @@
 #include "AST.h"
+#include "Util.h"
 
 #include <iostream>
 #include <variant>
@@ -6,36 +7,31 @@
 namespace bf {
     class AstPrinter final {
     public:
-        void print(const Program &Program) { print(Program.body); }
-
-        void print(const NodeList &statements) {
-            for (auto &stmt: statements) {
-                std::visit(*this, stmt);
+        void print(const Program &Program) {
+            for (auto &stmt: Program.body) {
+                print(stmt);
             }
         }
 
-        void operator()(const ZeroPtr &) const { std::cout << "[+]"; }
-
-        void operator()(const ReadPtr &) const { std::cout << ","; }
-
-        void operator()(const PrintPtr &) const { std::cout << "."; }
-
-        void operator()(const LoopPtr &Loop) {
-            std::cout << "[";
-            print(Loop->body);
-            std::cout << "]";
-        }
-
-        void operator()(const MovePtr &move) const {
-            if (move->amount) {
-                std::cout << std::string(std::abs(move->amount), move->amount < 0 ? '<' : '>');
-            }
-        }
-
-        void operator()(const AddPtr &add) const {
-            if (add->amount) {
-                std::cout << std::string(std::abs(add->amount), add->amount < 0 ? '-' : '+');
-            }
+    private:
+        void print(const Node &Node) {
+            std::visit(
+                overloaded{
+                    [](const AddPtr &Add) { std::cout << std::string(std::abs(Add->amount), Add->amount < 0 ? '-' : '+'); },
+                    [](const MovePtr &Move) { std::cout << std::string(std::abs(Move->amount), Move->amount < 0 ? '<' : '>'); },
+                    [](const ZeroPtr &) { std::cout << "[+]"; },
+                    [](const ReadPtr &) { std::cout << ","; },
+                    [](const PrintPtr &) { std::cout << "."; },
+                    [this](const LoopPtr &Loop) {
+                        std::cout << "[";
+                        for (auto &stmt: Loop->body) {
+                            print(stmt);
+                        }
+                        std::cout << "]";
+                    },
+                },
+                Node
+            );
         }
     };
 }// namespace bf

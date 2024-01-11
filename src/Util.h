@@ -8,4 +8,8 @@ struct overloaded : Ts... {
 template<class... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
+template<typename ContainerT, typename RangeT>
+ContainerT to(RangeT &&range) {
+    return ContainerT(begin(range), end(range));
+}
 #endif//UTIL_H

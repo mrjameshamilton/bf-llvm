@@ -1,6 +1,9 @@
 #ifndef OPTIMIZER_H
 #define OPTIMIZER_H
 #include "AST.h"
+#include "Util.h"
+
+#include <ranges>
 
 namespace bf {
 
@@ -43,7 +46,16 @@ namespace bf {
                 }
             }
 
-            return result;
+            return to<std::vector<Node>>(
+                result | std::views::filter([](auto &n) {
+                    return std::visit(overloaded{
+                                          [](const AddPtr &Add) { return Add->amount != 0; },
+                                          [](const MovePtr &Move) { return Move->amount != 0; },
+                                          [](const auto &) { return true; },
+                                      },
+                                      n);
+                })
+            );
         }
     };
 }// namespace bf
