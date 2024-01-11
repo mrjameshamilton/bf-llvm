@@ -1,7 +1,6 @@
 #ifndef OPTIMIZER_H
 #define OPTIMIZER_H
 #include "AST.h"
-#include "Util.h"
 
 namespace bf {
 
@@ -37,8 +36,11 @@ namespace bf {
                     }
                 }
 
-                // Visit the loops to recursively shrink.
-                std::visit(overloaded{[this](const LoopPtr &Loop) { Loop->body = shrink(Loop->body); }, [](auto &) {}}, node);
+                // Visit loop bodies to recursively shrink.
+                if (std::holds_alternative<LoopPtr>(node)) {
+                    const auto loop = std::get<LoopPtr>(node);
+                    loop->body = shrink(loop->body);
+                }
             }
 
             return result;
