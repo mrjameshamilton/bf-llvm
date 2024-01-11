@@ -32,33 +32,15 @@ namespace bf {
 
         void scanToken() {
             switch (advance()) {
-                case '[':
-                    addToken(TokenType::LEFT_BRACKET);
-                    break;
-                case ']':
-                    addToken(TokenType::RIGHT_BRACKET);
-                    break;
-                case ',':
-                    addToken(TokenType::COMMA);
-                    break;
-                case '.':
-                    addToken(TokenType::DOT);
-                    break;
-                case '-':
-                    addToken(TokenType::MINUS);
-                    break;
-                case '+':
-                    addToken(TokenType::PLUS);
-                    break;
-                case '<':
-                    addToken(TokenType::LESS);
-                    break;
-                case '>':
-                    addToken(TokenType::GREATER);
-                    break;
-                case '\n':
-                    line++;
-                    break;
+                case '[': addToken(TokenType::LEFT_BRACKET); break;
+                case ']': addToken(TokenType::RIGHT_BRACKET); break;
+                case ',': addToken(TokenType::COMMA); break;
+                case '.': addToken(TokenType::DOT); break;
+                case '-': addToken(TokenType::MINUS); break;
+                case '+': addToken(TokenType::PLUS); break;
+                case '<': addToken(TokenType::LESS); break;
+                case '>': addToken(TokenType::GREATER); break;
+                case '\n': line++; break;
                 default: {
                     // Ignore other characters.
                 }
