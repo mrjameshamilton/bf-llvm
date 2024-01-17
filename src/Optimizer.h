@@ -40,9 +40,8 @@ namespace bf {
                 }
 
                 // Visit loop bodies to recursively shrink.
-                if (std::holds_alternative<LoopPtr>(node)) {
-                    const auto loop = std::get<LoopPtr>(node);
-                    loop->body = shrink(loop->body);
+                if (const auto loop = std::get_if<LoopPtr>(&node)) {
+                    (*loop)->body = shrink((*loop)->body);
                 }
             }
 

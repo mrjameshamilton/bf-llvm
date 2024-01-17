@@ -10,7 +10,7 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 
-add_executable(bf src/main.cpp src/Scanner.cpp src/Token.h src/AST.h src/Parser.cpp src/Interpreter.cpp src/Compiler.cpp
+add_executable(bf src/main.cpp src/Scanner.h src/Token.h src/AST.h src/Parser.h src/Interpreter.h src/Compiler.cpp
         src/Optimizer.h
         src/Compiler.h
         src/Util.h

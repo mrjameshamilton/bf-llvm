@@ -1,33 +1,17 @@
-#include "AstPrinter.cpp"
+#include "AstPrinter.h"
 #include "Compiler.h"
-#include "Interpreter.cpp"
+#include "Interpreter.h"
 #include "Optimizer.h"
-#include "Parser.cpp"
-#include "Scanner.cpp"
-#include "llvm/Support/CommandLine.h"
-#include <fstream>
+#include "Parser.h"
+#include "Scanner.h"
 #include <iostream>
-#include <sstream>
-#include <string>
+#include <llvm/Support/CommandLine.h>
 
 cl::opt<std::string> InputFilename(cl::Positional, cl::desc("<input>"), cl::Required);
 cl::opt<std::string> OutputFilename("o", cl::desc("Output LLVM IR file"), cl::value_desc("<output>"));
 cl::opt<bool> Execute("e", cl::desc("Execute the brainf*ck program using the interpreter"));
 cl::opt<bool> Print("p", cl::desc("Print the brainf*ck source"));
 cl::opt<bool> DontOptimize("dontoptimize", cl::desc("Don't optimize the LLVM IR"));
-
-std::string read_string_from_file(const std::string &file_path) {
-    const std::ifstream input_stream(file_path, std::ios_base::binary);
-
-    if (input_stream.fail()) {
-        throw std::runtime_error("Failed to open file");
-    }
-
-    std::stringstream buffer;
-    buffer << input_stream.rdbuf();
-
-    return buffer.str();
-}
 
 int main(const int argc, char **argv) {
     cl::ParseCommandLineOptions(argc, argv);

@@ -16,29 +16,22 @@ using namespace llvm::sys;
 
 namespace bf {
     class Compiler final {
-        std::unique_ptr<LLVMContext> Context;
-        std::unique_ptr<Module> BfModule;
-        std::unique_ptr<IRBuilder<>> Builder;
-        Function *MainFunction;
-        Value *DP;
+        std::unique_ptr<LLVMContext> Context = std::make_unique<LLVMContext>();
+        std::unique_ptr<Module> BfModule = std::make_unique<Module>("bf", *Context);
+        std::unique_ptr<IRBuilder<>> Builder = std::make_unique<IRBuilder<>>(*Context);
+        Function *MainFunction = Function::Create(
+            FunctionType::get(Builder->getInt32Ty(), false),
+            Function::ExternalLinkage,
+            "main",
+            *BfModule
+        );
+        Value *DP = nullptr;
 
         [[nodiscard]] Value *LoadByte() const { return Builder->CreateLoad(Builder->getInt8Ty(), DP); }
 
         void StoreByte(Value *Value) const { Builder->CreateStore(Value, DP); }
 
     public:
-        Compiler() : DP{} {
-            Context = std::make_unique<LLVMContext>();
-            BfModule = std::make_unique<Module>("bf", *Context);
-            Builder = std::make_unique<IRBuilder<>>(*Context);
-            MainFunction = Function::Create(
-                FunctionType::get(Builder->getInt32Ty(), false),
-                Function::ExternalLinkage,
-                "main",
-                *BfModule
-            );
-        }
-
         void compile(const Program &Program);
         void operator()(const MovePtr &Move);
         void operator()(const AddPtr &Add) const;

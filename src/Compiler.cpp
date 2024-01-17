@@ -1,10 +1,9 @@
 #include "Compiler.h"
 #include "AST.h"
 
-using namespace llvm;
-using namespace llvm::sys;
-
 namespace bf {
+    using namespace llvm;
+    using namespace llvm::sys;
 
     void Compiler::compile(const Program &Program) {
         const auto EntryBasicBlock = BasicBlock::Create(*Context, "entry", MainFunction);
